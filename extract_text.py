@@ -1,14 +1,18 @@
 import cv2
 import easyocr
 
-def extract_text_from_image(image_path):
+class TextExtractor:
+    def __init__(self):
+        self.reader = easyocr.Reader(['en'])
 
-    """
-    input: path to image file
-    output: the test extracted from the image separated by '/n'
-    """
+    def extract_text_from_image(self, image):
+        img = cv2.imread(image)
+        res = self.reader.readtext(img)
+        return "\n".join([text for (bbox, text, prob) in res])
+    
 
-    reader = easyocr.Reader(['en'])
-    img = cv2.imread(image_path)
-    result = reader.readtext(image=img)
-    return "/n".join([text for (bbox, text, prob) in result])
+if __name__ == "__main__":
+    image_file = "./images/snipped_image.png"
+    text_extractor = TextExtractor()
+    res =  text_extractor.extract_text_from_image(image_file)
+    print(res)

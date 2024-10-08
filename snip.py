@@ -2,13 +2,22 @@ import tkinter as tk
 from PIL import ImageGrab
 import pyautogui
 import time
+from datetime import datetime
+from models import LLamaModel
+from extract_text import TextExtractor
+
 
 class SnippingTool:
-    def __init__(self):
+    def __init__(self, text_extractor, llm):
+
+        #model settings
+        self.text_extractor = text_extractor()
+        self.llm = llm()
+
         #intialize the main window
         self.root = tk.Tk()
         self.root.title("Snipping Tool") # set the window title
-        self.root.geometry("300x100") # set the window size
+        self.root.geometry("600x400") # set the window size
         
 
         # create variables for storing coordinates 
@@ -20,6 +29,10 @@ class SnippingTool:
         # create a button to start_snipping
         self.snip_button = tk.Button(self.root, text="start snipping", command=self.start_snipping)
         self.snip_button.pack(pady=30) # add padding to position the button
+
+        # Create a text widget to display the LLM-processed output
+        self.result_text = tk.Text(self.root, height=10, width=70, wrap="word")
+        self.result_text.pack(padx=10, pady=20, expand=True, fill=tk.BOTH)  # Ensure it expands and fills the window
 
         # start the Tkinter event loop
         self.root.mainloop()
@@ -77,13 +90,26 @@ class SnippingTool:
     def capture_snip(self, x1, y1, x2, y2):
         # Capture the region of interest using Pillow
         image = ImageGrab.grab(bbox=(x1, y1, x2, y2))  # Capture the selected region
-        image.save("./images/snipped_image.png")  # Save the image file
-        print("Snip saved as 'snipped_image.png'")  # Output message to console
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        image_path = f"./images/snipped_image_{timestamp}.png"
+        image.save(image_path)  # Save the image file
+        print("Snip saved as")  # Output message to console
+
+        # Extract text from the snipped image 
+        extracted_text = self.text_extractor.extract_text_from_image(image_path)
+
+        #get the output from llm
+        llm_out = self.llm.llm_output(extracted_text)
+        print(llm_out)
+
+        # Display the processed text in the text widget
+        self.result_text.delete(1.0, tk.END)  # Clear previous text
+        self.result_text.insert(tk.END, llm_out)  # Insert new processed text
 
         # Optionally show the captured snip (opens the image)
-        image.show()
+        #image.show()
         self.root.deiconify()
 
 
 if __name__ == "__main__":
-    SnippingTool()
+    SnippingTool(text_extractor=TextExtractor, llm=LLamaModel)
