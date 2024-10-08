@@ -34,5 +34,11 @@ class LLamaModel:
         output = self.model.generate(**inputs, do_sample=True, max_new_tokens=1024)
         decoded_outputs = self.tokenizer.batch_decode(output, skip_special_tokens=True)
 
-        return decoded_outputs[0]
+        return decoded_outputs[0].split("\n    Answer:")[-1]
+    
+
+if __name__ == "__main__":
+    llm = LLamaModel()
+    out = llm.llm_output("what is object oriented programming?")
+    print(out)
 
