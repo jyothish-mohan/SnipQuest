@@ -16,7 +16,7 @@ class SnippingTool:
 
         #intialize the main window
         self.root = tk.Tk()
-        self.root.title("Snipping Tool") # set the window title
+        self.root.title("SnipQuest") # set the window title
         self.root.geometry("600x400") # set the window size
         
 
@@ -95,20 +95,27 @@ class SnippingTool:
         image.save(image_path)  # Save the image file
         print("Snip saved as")  # Output message to console
 
+        # Show the snipping window again
+        self.root.deiconify()  # Make the snipping window visible again
+
+        # Display "Loading..." in the text widget while processing the text
+        self.result_text.delete(1.0, tk.END)  # Clear previous text
+        self.result_text.insert(tk.END, "Processing... Please wait...")  # Set loading text
+
+        # Update the UI immediately to reflect the loading message
+        self.root.update()
+
         # Extract text from the snipped image 
         extracted_text = self.text_extractor.extract_text_from_image(image_path)
 
         #get the output from llm
         llm_out = self.llm.llm_output(extracted_text)
-        print(llm_out)
 
         # Display the processed text in the text widget
         self.result_text.delete(1.0, tk.END)  # Clear previous text
         self.result_text.insert(tk.END, llm_out)  # Insert new processed text
 
-        # Optionally show the captured snip (opens the image)
-        #image.show()
-        self.root.deiconify()
+        self.root.update()
 
 
 if __name__ == "__main__":

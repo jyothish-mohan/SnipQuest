@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from prompts import BASE_PROMPT
 
-"meta-llama/Llama-3.2-1B-Instruct"
+
 
 class LLamaModel:
 
